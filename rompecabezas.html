@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rompecabezas simple</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("images/fondo1.jpg");
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      text-align: center;
+      max-width: 800px; /* Cambia a 100% al ocultar imagen */
+      margin: 0 auto;
+      background: rgba(4, 4, 4, 0.308);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: max-width 0.3s ease-in-out;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    /* Botones vistosos para niños */
+    button {
+      background: linear-gradient(to bottom right, #87ff4f, #00f2ff);
+      border: 2px solid #00ff51;
+      color: #333;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 10px 5px;
+      box-shadow: 0 4px #c65600;
+      transition: transform 0.1s ease-in-out;
+    }
+    button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px #1c7800;
+    }
+    button:hover {
+      background: linear-gradient(to bottom right, #82ffc9, #fff700);
+    }
+    select {
+      font-size: 1em;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 2px solid #ccc;
+      outline: none;
+    }
+    .image-preview {
+      margin-bottom: 15px;
+    }
+    .image-preview img {
+      max-width: 50%;
+      height: auto;
+      border: 2px solid #020202;
+      border-radius: 5px;
+      display: block;
+      margin: 0 auto;
+    }
+    .grid {
+      display: grid;
+      gap: 0px;
+      margin: 0 auto;
+      padding: 0;
+      /* Se ajustará el width dinámicamente con JS */
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #ccc;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .cell.over {
+      border: 2px solid #007BFF;
+    }
+    .piece {
+      width: 100px;
+      height: 100px;
+      cursor: grab;
+      box-sizing: border-box;
+    }
+    #piecesContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 auto;
+      justify-content: center;
+      min-height: 120px;
+      border: 2px dashed #ccc;
+      padding: 10px;
+      margin-top: 20px;
+      background: #5353536c;
+      border-radius: 5px;
+      /* Se ajustará el width dinámicamente con JS */
+    }
+    #timer {
+      font-size: 1.5em;
+      color: red;
+      margin: 15px 0;
+    }
+    #puzzleMessage {
+      font-size: 1.2em;
+      margin-top: 20px;
+      color: green;
+    }
+    .back {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .back a {
+      text-decoration: none;
+      color: #007BFF;
+    }
+    .image-menu {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .image-menu img {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      margin: 5px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      transition: transform 0.2s ease-in-out;
+    }
+    .image-menu img:hover {
+      border-color: #007BFF;
+      transform: scale(1.1);
+    }
+    @media (max-width: 800px) {
+      .container {
+        max-width: 100%;
+        padding: 10px;
+      }
+      .cell, .piece {
+        width: 60px;
+        height: 60px;
+      }
+      .image-menu img {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container" id="puzzleContainer">
+  <h1>Rompecabeza</h1>
+  <button id="togglePreviewBtn" onclick="togglePreview()">Ocultar Vista Previa</button>
+
+  <div class="image-preview">
+    <img id="selectedImagePreview" src="images/Rompecabezas01.jpg" alt="Vista previa del rompecabezas">
+  </div>
+  <div id="timer"></div>
+  <div class="image-menu" id="imageMenu">
+<img src="images/Rompecabezas01.jpg" alt="Rompecabezas 1" onclick="selectImage('images/Rompecabezas01.jpg')">
+    <img src="images/Rompecabezas02.jpg" alt="Rompecabezas 2" onclick="selectImage('images/Rompecabezas02.jpg')">
+    <img src="images/Rompecabezas03.jpg" alt="Rompecabezas 3" onclick="selectImage('images/Rompecabezas03.jpg')">
+    <img src="images/Rompecabezas04.jpg" alt="Rompecabezas 4" onclick="selectImage('images/Rompecabezas04.jpg')">
+    <img src="images/Rompecabezas06.jpg" alt="Rompecabezas 6" onclick="selectImage('images/Rompecabezas06.jpg')">
+    <img src="images/Rompecabezas07.jpg" alt="Rompecabezas 7" onclick="selectImage('images/Rompecabezas07.jpg')">
+    <img src="images/Rompecabezas08.jpg" alt="Rompecabezas 8" onclick="selectImage('images/Rompecabezas08.jpg')">
+    <img src="images/Rompecabezas09.jpg" alt="Rompecabezas 9" onclick="selectImage('images/Rompecabezas09.jpg')">
+  </div>
+  <label for="difficulty">Dificultad:</label>
+  <select id="difficulty">
+    <option value="2">2x2</option>
+    <option value="3">3x3</option>
+    <option value="4">4x4</option>
+  </select>
+  <button onclick="startPuzzle()">Iniciar Rompecabezas</button>
+
+  <h2>Área de Juego</h2>
+  <div id="puzzleGrid" class="grid"></div>
+  <h2>Piezas</h2>
+  <div id="piecesContainer" ondragover="allowDrop(event)" ondrop="returnPiece(event)"></div>
+  <div id="puzzleMessage"></div>
+  <div class="back"><a href="index.html">Volver al Índice</a></div>
+</div>
+<script>
+let correctPositions = {};
+let selectedImage = "images/Rompecabezas01.jpg"; // Imagen predeterminada
+let timer;
+let timeLeft = 60;
+
+/* =========================================
+   MOSTRAR/OCULTAR VISTA PREVIA
+   ========================================= */
+   function togglePreview() {
+  const previewImg = document.getElementById("selectedImagePreview");
+  const container = document.getElementById("puzzleContainer");
+  const toggleBtn = document.getElementById("togglePreviewBtn");
+  
+  if (previewImg.style.display === "none") {
+    // Mostrar imagen
+    previewImg.style.display = "block";
+    container.style.maxWidth = "800px"; // Volver a ancho fijo
+    toggleBtn.textContent = "Ocultar Vista Previa";
+  } else {
+    // Ocultar imagen
+    previewImg.style.display = "none";
+    container.style.maxWidth = "100%";  // Expandir contenedor al 100% de la pantalla
+    toggleBtn.textContent = "Mostrar Vista Previa";
+  }
+}
+
+/* =========================================
+   SELECCIONAR IMAGEN DE ROMPECABEZAS
+   ========================================= */
+function selectImage(imageSrc) {
+  selectedImage = imageSrc;
+  document.getElementById("selectedImagePreview").src = imageSrc;
+}
+
+/* =========================================
+   INICIAR ROMPECABEZAS
+   ========================================= */
+function selectImage(imageSrc) {
+  selectedImage = imageSrc;
+  document.getElementById("selectedImagePreview").src = imageSrc; // Cambiar vista previa
+}
+function startPuzzle(){
+  const difficulty = document.getElementById('difficulty').value;
+  // Configurar tiempo según la dificultad
+  switch (difficulty) {
+    case "2": timeLeft = 20; break;
+    case "3": timeLeft = 40; break;
+    case "4": timeLeft = 60; break;
+  }
+  document.getElementById('selectedImagePreview').style.display = "block";
+  // Reiniciar el temporizador
+  clearInterval(timer);
+  document.getElementById("timer").innerText = `Tiempo restante: ${timeLeft}s`;
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = `Tiempo restante: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      document.getElementById("timer").innerText = "¡Tiempo agotado!";
+      alert("Se acabó el tiempo. Intenta de nuevo.");
+      location.reload(); // Recarga la página para reiniciar el juego
+    }
+  }, 1000);
+  const img = new Image();
+  img.onload = function(){
+    createPuzzle(img);
+  };
+  img.src = selectedImage;
+}
+function createPuzzle(img){
+  const difficulty = document.getElementById('difficulty').value;
+  const rows = parseInt(difficulty);
+  const cols = parseInt(difficulty);
+  //adjustContainerSize(rows, cols); // Ajusta el tamaño del contenedor dinámicamente
+  const pieceWidth = img.width / cols;
+  const pieceHeight = img.height / rows;
+  const pieces = [];
+  
+  document.getElementById('puzzleGrid').innerHTML = "";
+  document.getElementById('piecesContainer').innerHTML = "";
+  document.getElementById('puzzleMessage').innerText = "";
+  correctPositions = {};
+  // Ajustamos el grid: establecemos columnas fijas y el ancho total
+  const puzzleGrid = document.getElementById('puzzleGrid');
+  puzzleGrid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
+  puzzleGrid.style.width = `${cols * 100}px`;
+
+  // Crear celdas destino
+  for(let r = 0; r < rows; r++){
+    for(let c = 0; c < cols; c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.id = `cell-${r}-${c}`;
+      cell.addEventListener('dragover', allowDrop);
+      cell.addEventListener('drop', dropPiece);
+      cell.addEventListener('dragenter', dragEnter);
+      cell.addEventListener('dragleave', dragLeave);
+      document.getElementById('puzzleGrid').appendChild(cell);
+      correctPositions[`piece-${r}-${c}`] = `cell-${r}-${c}`;
+    }
+  }
+  
+  // Crear piezas recortando la imagen
+  for(let r = 0; r < rows; r++){
+    for(let c = 0; c < cols; c++){
+      const canvasPiece = document.createElement('canvas');
+      canvasPiece.width = pieceWidth;
+      canvasPiece.height = pieceHeight;
+      const ctx = canvasPiece.getContext('2d');
+      ctx.drawImage(img, c * pieceWidth, r * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
+      canvasPiece.classList.add('piece');
+      canvasPiece.id = `piece-${r}-${c}`;
+      canvasPiece.draggable = true;
+      canvasPiece.addEventListener('dragstart', dragStart);
+      pieces.push(canvasPiece);
+    }
+  }
+  // Mezclar piezas
+  pieces.sort(() => Math.random() - 0.5);
+  pieces.forEach(piece => {
+    document.getElementById('piecesContainer').appendChild(piece);
+  });
+}
+function adjustContainerSize(rows, cols) {
+  const baseSize = 100; // Tamaño base de cada pieza
+  const newSize = baseSize * cols + 0; // Ajusta el tamaño del contenedor
+  document.getElementById('puzzleContainer').style.maxWidth = `${newSize}px`;
+}
+function dragStart(event){
+  event.dataTransfer.setData("text", event.target.id);
+}
+function allowDrop(event){
+  event.preventDefault();
+}
+function dropPiece(event){
+  event.preventDefault();
+  const pieceId = event.dataTransfer.getData("text");
+  const piece = document.getElementById(pieceId);
+  if(event.target.classList.contains('cell') && event.target.childElementCount === 0){
+    event.target.appendChild(piece);
+    checkPuzzle();
+  }
+}
+function returnPiece(event){
+  event.preventDefault();
+  const pieceId = event.dataTransfer.getData("text");
+  const piece = document.getElementById(pieceId);
+  if(piece && document.getElementById('piecesContainer')) {
+    document.getElementById('piecesContainer').appendChild(piece);
+  }
+}
+function dragEnter(event){
+  if(event.target.classList.contains('cell')){
+    event.target.classList.add('over');
+  }
+}
+function dragLeave(event){
+  if(event.target.classList.contains('cell')){
+    event.target.classList.remove('over');
+  }
+}
+function checkPuzzle(){
+  let correct = 0;
+  for(let key in correctPositions){
+    let expectedCellId = correctPositions[key];
+    let cell = document.getElementById(expectedCellId);
+    if(cell.childElementCount > 0){
+      let piece = cell.children[0];
+      if(piece.id === key){
+        correct++;
+      }
+    }
+  }
+  if(correct === Object.keys(correctPositions).length){
+    clearInterval(timer);
+    document.getElementById("timer").innerText = "¡Rompecabezas completado!";
+    document.getElementById('puzzleMessage').innerText = "¡Felicidades, has completado el rompecabezas!";
+  }
+}
+</script>
+</body>
+</html>
